@@ -35,10 +35,21 @@ do
 done < "${linuxFile}"
 }
 
+creategitrepo(){
+    if [ ! -d "$HOME/mfit-versions" ]
+    then
+      mkdir "$HOME/mfit-versions"
+      cd "$HOME/mfit-versions" || exit
+      git init .
+      fi
+}
+
+
 main() {
     getCleanVersionNumbers
     createCleanVersionFiles
     versionDilineatedFolderHierarchy
+    creategitrepo
 }
 ################################################
 
