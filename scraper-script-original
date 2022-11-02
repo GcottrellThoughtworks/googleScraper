@@ -28,8 +28,8 @@ do
   mkdir "$folder"
   touch "$folder/$file"
   sed -i "${n}s|^|${baseURL}|" "${linuxFile}"
-  script="$(awk "NR==${n}{ print; }" "${linuxFile}")"
-  curl -o "$folder/$file" "$script"
+  theLoot="$(awk "NR==${n}{ print; }" "${linuxFile}")"
+  curl -o "$folder/$file" "$theLoot"
   n=$((n + 1))
 
 done < "${linuxFile}"
