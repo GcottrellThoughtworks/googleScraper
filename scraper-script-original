@@ -1,0 +1,46 @@
+#!/bin/bash
+
+baseURL=https://mfit-release.storage.googleapis.com/
+linuxFile=linux-collect-versions.txt
+windowsFile=windows-collect-versions.txt
+
+getCleanVersionNumbers() {
+curl "${baseURL}" > all-data.xml
+grep -oE '<Key>[^<]*</Key>' all-data.xml > all-versions.xml
+rm all-data.xml
+}
+
+createCleanVersionFiles() {
+grep -E 'linux-collect.sh</Key>' all-versions.xml > "${linuxFile}"
+grep -E 'mfit-windows-collect.ps1</Key>' all-versions.xml > "${windowsFile}"
+sed -i "s/<Key>//g" "${linuxFile}"
+sed -i "s/\.sh.*/.sh/" "${linuxFile}"
+sed -i "s/<Key>//g" "${windowsFile}"
+sed -i "s/\.ps1.*/.ps1/" "${windowsFile}"
+}
+
+versionDilineatedFolderHierarchy() {
+n=1
+while read -r line;
+do
+  folder="${line%/*}"
+  file="${line#*/}"
+  mkdir "$folder"
+  touch "$folder/$file"
+  sed -i "${n}s|^|${baseURL}|" "${linuxFile}"
+  script="$(awk "NR==${n}{ print; }" "${linuxFile}")"
+  curl -o "$folder/$file" "$script"
+  n=$((n + 1))
+
+done < "${linuxFile}"
+}
+
+main() {
+    getCleanVersionNumbers
+    createCleanVersionFiles
+    versionDilineatedFolderHierarchy
+}
+################################################
+
+
+main "@"
